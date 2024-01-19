@@ -11,8 +11,8 @@ services:
     volumes:
       - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html # Full wordpress project
-      #- ./plugin-name/trunk/:/var/www/html/wp-content/plugins/plugin-name # Plugin development
-      - /home/jan/bootstrapthemes-sources/relax-spa/:/var/www/html/wp-content/themes/relax-spa # Theme development
+      #- ./plugin-name/:/var/www/html/wp-content/plugins/plugin-name # Plugin development
+      #- ./theme-name/:/var/www/html/wp-content/themes/theme-name # Theme development
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_NAME: "${DB_NAME}"
