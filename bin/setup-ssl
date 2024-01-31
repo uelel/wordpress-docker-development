@@ -1,0 +1,8 @@
+#!/bin/bash
+set -a
+source .env 
+
+cd ./.docker/nginx/certs || exit
+mkcert ${APP_NAME}.local
+
+#sed -i -e "s/wordpress.local/${APP_NAME}.local/g" ./conf.d

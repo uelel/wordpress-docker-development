@@ -7,9 +7,8 @@ services:
       context: ./.docker/wordpress
       dockerfile: Dockerfile # install the wp-cli that is missing from the official image
     ports:
-      - ${IP}:${PORT}:80 # change ip if required
+      - 8080:80
     volumes:
-      - ./config/php.conf.ini:/usr/local/etc/php/conf.d/conf.ini
       - ./wp-app:/var/www/html # Full wordpress project
       #- ./plugin-name/:/var/www/html/wp-content/plugins/plugin-name # Plugin development
       #- ./theme-name/:/var/www/html/wp-content/themes/theme-name # Theme development
@@ -24,12 +23,27 @@ services:
     links:
       - db
 
+  proxy:
+    container_name: ${APP_NAME}-proxy
+    image: nginx:stable
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./wp-app:/var/www/html
+      # nginx config file
+      - ./.docker/nginx/:/etc/nginx/conf.d
+      # SSL certificates
+      - ./.docker/nginx/certs:/etc/nginx/certs
+    depends_on:
+      - wp
+    links:
+      - wp
+
   db:
     container_name: ${APP_NAME}-db
     image: mysql:latest # https://hub.docker.com/_/mysql/ - or mariadb https://hub.docker.com/_/mariadb
     # platform: linux/x86_64  # Uncomment if your machine is running on arm (ex: Apple Silicon processor)
-    ports:
-      - ${IP}:3306:3306 # change ip if required
     command: [
         '--default_authentication_plugin=mysql_native_password',
         '--character-set-server=utf8mb4',
@@ -42,21 +56,8 @@ services:
       MYSQL_DATABASE: "${DB_NAME}"
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
 
-  pma:
-    container_name: ${APP_NAME}-pma
-    image: phpmyadmin:latest  # https://hub.docker.com/_/phpmyadmin
-    environment:
-      # https://docs.phpmyadmin.net/en/latest/setup.html#docker-environment-variables
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-      UPLOAD_LIMIT: 50M
-    ports:
-      - ${IP}:8080:80
-    links:
-      - db:db
-
 volumes:
+  wp-app:
   db_data:
 
 networks:
