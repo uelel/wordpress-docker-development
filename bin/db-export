@@ -1,0 +1,8 @@
+#!/bin/bash
+set -a
+source .env 
+
+current_date=`date +"%Y_%m_%d"`
+
+docker exec "${APP_NAME}"-db bash -c "exec mysqldump --databases ${DB_NAME} -uroot -p${DB_ROOT_PASSWORD} > ./db_$current_date.sql"
+docker cp "${APP_NAME}"-db:db_"$current_date".sql ./wp-data/db_"$current_date".sql
